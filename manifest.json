@@ -1,0 +1,122 @@
+{
+    "manifest_version": 3,
+    "name": "SETAN X TOOLS",
+    "version": "3.2",
+    "author": "reacteev",
+    "description": "SETAN X TOOLS AI TERMURAH SEDUNIA",
+    "icons": {
+        "16": "icon16.plasmo.6c567d50.png",
+        "32": "icon32.plasmo.76b92899.png",
+        "48": "icon48.plasmo.aced7582.png",
+        "64": "icon64.plasmo.8bb5e6e0.png",
+        "128": "icon128.plasmo.3c1ed2d2.png"
+    },
+    "action": {
+        "default_icon": {
+            "16": "icon16.plasmo.6c567d50.png",
+            "32": "icon32.plasmo.76b92899.png",
+            "48": "icon48.plasmo.aced7582.png",
+            "64": "icon64.plasmo.8bb5e6e0.png",
+            "128": "icon128.plasmo.3c1ed2d2.png"
+        },
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "static/background/index.js"
+    },
+    "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "portal_rules",
+                "enabled": true,
+                "path": "rules.json"
+            }
+        ]
+    },
+    "permissions": [
+        "storage",
+        "cookies",
+        "activeTab",
+        "tabs",
+        "scripting",
+        "webRequest",
+        "browsingData",
+        "declarativeNetRequest",
+        "declarativeNetRequestWithHostAccess",
+        "alarms",
+        "downloads",
+        "sidePanel",
+        "management",
+        "contentSettings"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "loading-overlay.63888bc0.js"
+            ]
+        },
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "element.b7805e09.js"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "autofill.4446c997.js"
+            ],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://gamma.app/signin?ext=true*"
+            ],
+            "js": [
+                "login.3824c726.js"
+            ]
+        },
+        {
+            "matches": [
+                "https://www.youtube.com/watch*"
+            ],
+            "js": [
+                "youtube.ce6629fd.js"
+            ],
+            "css": [
+                "youtube.1a9b5582.css"
+            ]
+        },
+        {
+            "matches": [
+                "https://premiumportal.id/*",
+                "https://www.premiumportal.id/*"
+            ],
+            "js": [
+                "portal-modifier.js"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "web_accessible_resources": [
+        {
+            "matches": [
+                "https://www.youtube.com/*"
+            ],
+            "resources": [
+                "youtube.dc2b32d4.css"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,43 @@
+# Backup files
+*.backup
+*.backup2
+*.backup3
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Build artifacts (if any)
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# Chrome extension specific
+*.crx
+*.pem
+*.zip
+
+# Testing/development scripts (optional - remove if you want to include them)
+modify-tracking.js
+inject-standalone.js
+inject-standalone-v2.js
