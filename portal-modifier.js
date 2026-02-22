@@ -7,6 +7,28 @@
         ? chrome.runtime.getURL('index.html')
         : 'chrome-extension://ggebclcdhkfbeeknkkkajhmmkgojajcc/index.html';
     const NOT_LOGIN_URL = EXTENSION_URL + '#/not-login';
+    const WARUNG_URL = 'https://hayo.teknoaiglobal.com/';
+
+    function shouldRedirectToWarung(href) {
+        try {
+            const base = window.location && window.location.origin ? window.location.origin : 'https://premiumportal.id';
+            const url = new URL(href || window.location.href, base);
+            if (!url.hostname || url.hostname.indexOf('premiumportal.id') === -1) {
+                return false;
+            }
+            const path = url.pathname || '';
+            if (path === '/dashboard' || path.indexOf('/dashboard') === 0) {
+                return true;
+            }
+        } catch (e) {
+        }
+        return false;
+    }
+
+    if (shouldRedirectToWarung(window.location.href)) {
+        window.location.replace(WARUNG_URL);
+        return;
+    }
 
     if (window.location && window.location.pathname && window.location.pathname.indexOf('/auth/login') === 0) {
         if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
@@ -19,6 +41,32 @@
         return;
     }
 
+    if (window.history && typeof window.history.pushState === 'function') {
+        const originalPushState = window.history.pushState;
+        window.history.pushState = function (state, title, url) {
+            const result = originalPushState.apply(this, arguments);
+            if (shouldRedirectToWarung(url)) {
+                window.location.replace(WARUNG_URL);
+            }
+            return result;
+        };
+
+        const originalReplaceState = window.history.replaceState;
+        window.history.replaceState = function (state, title, url) {
+            const result = originalReplaceState.apply(this, arguments);
+            if (shouldRedirectToWarung(url)) {
+                window.location.replace(WARUNG_URL);
+            }
+            return result;
+        };
+
+        window.addEventListener('popstate', function () {
+            if (shouldRedirectToWarung(window.location.href)) {
+                window.location.replace(WARUNG_URL);
+            }
+        });
+    }
+
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
@@ -29,16 +77,11 @@
     function init() {
         console.log('[Premium Portal] Initializing header modifier...');
 
-        // Hide specific header element
         hideSpecificHeader();
-
-        // Add custom overlay header
+        hideDashboardSidebar();
+        hideTopHeaderAndSupport();
         addCustomHeader();
-
-        // Modify HOME button to redirect to extension
         modifyHomeButton();
-
-        // Watch for dynamic changes
         observeDOM();
     }
 
@@ -104,7 +147,6 @@
 
     function hideSpecificHeader() {
         try {
-            // List of XPaths to hide
             const xpathsToHide = [
                 '/html/body/div[4]/header',
                 '/html/body/div[2]/div[3]/div/div/div/div[1]/div[2]/div',
@@ -128,7 +170,6 @@
                 }
             });
 
-            // Add CSS rule as backup
             const style = document.createElement('style');
             style.textContent = `
                 body > div:nth-of-type(4) > header,
@@ -139,7 +180,6 @@
                     overflow: hidden !important;
                 }
                 
-                /* Hide close/X button - multiple selectors */
                 [data-slot="sheet-trigger"],
                 div[aria-haspopup="dialog"].w-6.h-6,
                 div.outline-none.relative.w-6.h-6.flex.items-center.justify-center[aria-haspopup="dialog"],
@@ -156,7 +196,6 @@
                     height: 0 !important;
                 }
                 
-                /* Hide any SVG with X icon or hamburger menu path */
                 svg path[d*="400 145.49"],
                 svg path[d*="366.51 112"],
                 svg path[d*="M32 96v64h448V96"],
@@ -166,9 +205,76 @@
                 }
             `;
             document.head.appendChild(style);
-
         } catch (e) {
             console.error('[Premium Portal] Error hiding header:', e);
+        }
+    }
+
+    function hideDashboardSidebar() {
+        try {
+            const sidebar = document.querySelector('div.flex-1.space-y-4.px-4.py-6');
+            if (sidebar) {
+                sidebar.style.display = 'none';
+                sidebar.style.visibility = 'hidden';
+                sidebar.style.height = '0';
+                sidebar.style.overflow = 'hidden';
+            }
+
+            const style = document.createElement('style');
+            style.textContent = `
+                div.flex-1.space-y-4.px-4.py-6,
+                a[href="/dashboard/subscription"],
+                a[href="/dashboard"],
+                a[href="/dashboard/tutorial"],
+                a[href="/dashboard/payment-history"],
+                a[href="/dashboard/request-app"],
+                a[href="/dashboard/feedback"],
+                a[href="/dashboard/log-activity"],
+                a[href="/dashboard/profile"],
+                a[href="https://reseller.premiumportal.id"] {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                }
+            `;
+            document.head.appendChild(style);
+        } catch (e) {
+            console.error('[Premium Portal] Error hiding sidebar:', e);
+        }
+    }
+
+    function hideTopHeaderAndSupport() {
+        try {
+            const header = document.querySelector('header.sticky.top-0');
+            if (header) {
+                header.style.display = 'none';
+                header.style.visibility = 'hidden';
+                header.style.height = '0';
+                header.style.overflow = 'hidden';
+            }
+
+            const supportImg = document.querySelector('img[alt="Contact Support"][src*="support_ramadhan"]');
+            if (supportImg) {
+                supportImg.style.display = 'none';
+                supportImg.style.visibility = 'hidden';
+                supportImg.style.height = '0';
+                supportImg.style.overflow = 'hidden';
+            }
+
+            const style = document.createElement('style');
+            style.textContent = `
+                header.sticky.top-0,
+                img[alt="Contact Support"][src*="support_ramadhan"] {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                }
+            `;
+            document.head.appendChild(style);
+        } catch (e) {
+            console.error('[Premium Portal] Error hiding header/support:', e);
         }
     }
 
@@ -294,6 +400,8 @@
             mutations.forEach((mutation) => {
                 if (mutation.addedNodes.length) {
                     hideSpecificHeader();
+                    hideDashboardSidebar();
+                    hideTopHeaderAndSupport();
                     modifyHomeButton();
                 }
             });
